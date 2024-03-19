@@ -1,19 +1,21 @@
+import logging
 import os
+
 import torch
 import torch.nn as nn
 from matplotlib import pyplot as plt
-from tqdm import tqdm
 from torch import optim
-from utils import *
-from modules import UNet
-import logging
 from torch.utils.tensorboard import SummaryWriter
+from tqdm import tqdm
+
+from modules import UNet
+from utils import *
 
 logging.basicConfig(format="%(asctime)s - %(levelname)s: %(message)s", level=logging.INFO, datefmt="%I:%M:%S")
 
 
 class Diffusion:
-    def __init__(self, noise_steps=1000, beta_start=1e-4, beta_end=0.02, img_size=256, device="cuda"):
+    def __init__(self, noise_steps=1000, beta_start=1e-4, beta_end=0.02, img_size=256, device="cpu"):
         self.noise_steps = noise_steps
         self.beta_start = beta_start
         self.beta_end = beta_end
@@ -62,7 +64,7 @@ def train(args):
     setup_logging(args.run_name)
     device = args.device
     dataloader = get_data(args)
-    model = UNet().to(device)
+    model = UNet(device=device).to(device)
     optimizer = optim.AdamW(model.parameters(), lr=args.lr)
     mse = nn.MSELoss()
     diffusion = Diffusion(img_size=args.image_size, device=device)
@@ -99,8 +101,8 @@ def launch():
     args.epochs = 500
     args.batch_size = 12
     args.image_size = 64
-    args.dataset_path = r"C:\Users\dome\datasets\landscape_img_folder"
-    args.device = "cuda"
+    args.dataset_path = "~/code/data/landscapes"
+    args.device = "mps"
     args.lr = 3e-4
     train(args)
 
