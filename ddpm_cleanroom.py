@@ -62,6 +62,8 @@ class Diffusion:
                 z = torch.zeros(size=(1, ))
             x_t = 1 / torch.sqrt(self.alphas[t]) * (x_t - ((self.betas[t] / self.sqrt_1_minus_alpha_bar[t]) * model(x_t, t))) + torch.sqrt(self.betas[t] * z)
             
+        x_t = (x_t.clamp(-1, 1) + 1) / 2
+        x_t = (x_t * 255).type(torch.uint8)
         return x_t
 
 
